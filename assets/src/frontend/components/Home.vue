@@ -1,90 +1,63 @@
 <template>
     <div id="wepos-main" v-cloak v-hotkey="hotkeys">
-        <div class="content-product">
-            <div class="top-panel wepos-clearfix">
-                <div class="search-bar">
-                    <product-search @onProductAdded="addToCart" :products="products" :settings="settings"></product-search>
-                </div>
-                <div class="category">
-                    <multiselect
-                        class="wepos-multiselect"
-                        v-model="selectedCategory"
-                        :options="categories"
-                        selectLabel=""
-                        deselectLabel=""
-                        selectedLabel=""
-                        :placeholder="__( 'Select a category', 'wepos' )"
-                        @select="handleCategorySelect"
-                        @remove="handleCategoryRemove"
-                    >
-                        <template slot="singleLabel" slot-scope="props">
-                            {{props.option.name}}
-                        </template>
-                        <template slot="option" slot-scope="props">
-                            <span>
-                                <template v-for="pad in props.option.level">
-                                    &nbsp;
-                                </template>
-                                {{ props.option.name }}
-                            </span>
-                        </template>
+            <div class="content-product">
+                <div class="top-panel wepos-clearfix">
+                    <div class="search-bar">
+                        <product-search @onProductAdded="addToCart" :products="products" :settings="settings"></product-search>
+                    </div>
+                    <div class="category">
+                        <multiselect
+                            class="wepos-multiselect"
+                            v-model="selectedCategory"
+                            :options="categories"
+                            selectLabel=""
+                            deselectLabel=""
+                            selectedLabel=""
+                            :placeholder="__( 'Select a category', 'wepos' )"
+                            @select="handleCategorySelect"
+                            @remove="handleCategoryRemove"
+                        >
+                            <template slot="singleLabel" slot-scope="props">
+                                {{props.option.name}}
+                            </template>
+                            <template slot="option" slot-scope="props">
+                                <span>
+                                    <template v-for="pad in props.option.level">
+                                        &nbsp;
+                                    </template>
+                                    {{ props.option.name }}
+                                </span>
+                            </template>
 
-                        <template slot="noResult">
-                            <div class="no-data-found">{{ __( 'Not found', 'wepos' ) }}</div>
-                        </template>
-                    </multiselect>
-                </div>
+                            <template slot="noResult">
+                                <div class="no-data-found">{{ __( 'Not found', 'wepos' ) }}</div>
+                            </template>
+                        </multiselect>
+                    </div>
 
-                <div class="toggle-view">
-                    <div class="product-toggle">
-                        <span class="toggle-icon list-view flaticon-menu-button-of-three-horizontal-lines" @click="productView = 'list'" :class="{ active: productView == 'list'}"></span>
-                        <span class="toggle-icon grid-view flaticon-menu" @click="productView = 'grid'" :class="{ active: productView == 'grid'}"></span>
+                    <div class="toggle-view">
+                        <div class="product-toggle">
+                            <span class="toggle-icon list-view flaticon-menu-button-of-three-horizontal-lines" @click="productView = 'list'" :class="{ active: productView == 'list'}"></span>
+                            <span class="toggle-icon grid-view flaticon-menu" @click="productView = 'grid'" :class="{ active: productView == 'grid'}"></span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="breadcrumb" v-if="getBreadCrums.length > 0">
-                <ul>
-                    <template v-for="breadcrumb in getBreadCrums">
-                        <router-link tag="li" :to="{ name: 'Home', query: { category: breadcrumb.id }}">
-                            <a>{{ breadcrumb.name }}</a>
-                        </router-link>
-                    </template>
-                </ul>
-                <span class="close-breadcrumb flaticon-cancel-music" @click.prevent="removeBreadcrums"></span>
-            </div>
-            <div class="items-wrapper" :class="productView" ref="items-wrapper">
-                <template v-if="!productLoading">
-                    <div class="item" v-if="getFilteredProduct.length > 0" v-for="product in getFilteredProduct">
-                        <template v-if="product.type === 'simple'">
-                            <div class="item-wrap" :class="{ 'disabled': ! hasStock( product ) }" @click.prevent="addToCart(product)">
-                                <div class="img">
-                                    <img :src="getProductImage(product)" :alt="getProductImageName( product )">
-                                </div>
-                                <div class="title" v-if="productView === 'grid'">
-                                    {{ truncateTitle( product.name, 20 ) }}
-                                </div>
-                                <div class="title" v-else>
-                                    <div class="product-name">{{ product.name }}</div>
-
-                                    <ul class="meta">
-                                        <li v-if="product.sku">
-                                            <span class="label">{{ __( 'Sku :', 'wepos' ) }}</span>
-                                            <span class="value">{{ product.sku }}</span>
-                                        </li>
-                                        <li>
-                                            <span class="label">{{ __( 'Price :', 'wepos' ) }}</span>
-                                            <span class="value" v-html="product.price_html"></span>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <span class="add-product-icon flaticon-add" :class="productView"></span>
-                            </div>
+                <div class="breadcrumb" v-if="getBreadCrums.length > 0">
+                    <ul>
+                        <template v-for="breadcrumb in getBreadCrums">
+                            <router-link tag="li" :to="{ name: 'Home', query: { category: breadcrumb.id }}">
+                                <a>{{ breadcrumb.name }}</a>
+                            </router-link>
                         </template>
-
-                        <template v-if="product.type === 'variable'">
-                            <v-popover offset="10" popover-base-class="product-variation tooltip popover" placement="left-end">
-                                <div class="item-wrap" @click="selectVariationProduct( product )">
+                    </ul>
+                    <span class="close-breadcrumb flaticon-cancel-music" @click.prevent="removeBreadcrums"></span>
+                </div>
+                <div class="items-wrapper" :class="productView" ref="items-wrapper">
+                    <template v-if="!productLoading">
+                        <div class="item" v-if="getFilteredProduct.length > 0" v-for="product in getFilteredProduct">
+                            <template v-if="product.type === 'simple'">
+                                <div class="item-wrap" :class="{ 'disabled': ! hasStock( product ) }" @click.prevent="addToCart(product)">
                                     <div class="img">
                                         <img :src="getProductImage(product)" :alt="getProductImageName( product )">
                                     </div>
@@ -93,507 +66,490 @@
                                     </div>
                                     <div class="title" v-else>
                                         <div class="product-name">{{ product.name }}</div>
+
                                         <ul class="meta">
+                                            <li v-if="product.sku">
+                                                <span class="label">{{ __( 'Sku :', 'wepos' ) }}</span>
+                                                <span class="value">{{ product.sku }}</span>
+                                            </li>
                                             <li>
                                                 <span class="label">{{ __( 'Price :', 'wepos' ) }}</span>
                                                 <span class="value" v-html="product.price_html"></span>
                                             </li>
                                         </ul>
-
                                     </div>
                                     <span class="add-product-icon flaticon-add" :class="productView"></span>
                                 </div>
-                                <template slot="popover">
-                                    <div class="variation-header">
-                                        {{ __( 'Select Variations', 'wepos' ) }}
+                            </template>
+
+                            <template v-if="product.type === 'variable'">
+                                <v-popover offset="10" popover-base-class="product-variation tooltip popover" placement="left-end">
+                                    <div class="item-wrap" @click="selectVariationProduct( product )">
+                                        <div class="img">
+                                            <img :src="getProductImage(product)" :alt="getProductImageName( product )">
+                                        </div>
+                                        <div class="title" v-if="productView === 'grid'">
+                                            {{ truncateTitle( product.name, 20 ) }}
+                                        </div>
+                                        <div class="title" v-else>
+                                            <div class="product-name">{{ product.name }}</div>
+                                            <ul class="meta">
+                                                <li>
+                                                    <span class="label">{{ __( 'Price :', 'wepos' ) }}</span>
+                                                    <span class="value" v-html="product.price_html"></span>
+                                                </li>
+                                            </ul>
+
+                                        </div>
+                                        <span class="add-product-icon flaticon-add" :class="productView"></span>
                                     </div>
-                                    <div class="variation-body">
-                                        <template v-for="attribute in product.attributes">
-                                            <div class="attribute">
-                                                <p>{{ attribute.name }}</p>
-                                                <div class="options">
-                                                    <template v-for="option in attribute.options">
-                                                        <label>
-                                                            <input type="radio" v-model="selectedAttribute[attribute.name]" :value="option">
-                                                            <div class="box">
-                                                                {{ option }}
-                                                            </div>
-                                                        </label>
-                                                    </template>
+                                    <template slot="popover">
+                                        <div class="variation-header">
+                                            {{ __( 'Select Variations', 'wepos' ) }}
+                                        </div>
+                                        <div class="variation-body">
+                                            <template v-for="attribute in product.attributes">
+                                                <div class="attribute">
+                                                    <p>{{ attribute.name }}</p>
+                                                    <div class="options">
+                                                        <template v-for="option in attribute.options">
+                                                            <label>
+                                                                <input type="radio" v-model="selectedAttribute[attribute.name]" :value="option">
+                                                                <div class="box">
+                                                                    {{ option }}
+                                                                </div>
+                                                            </label>
+                                                        </template>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </template>
-                                    </div>
-                                    <div class="variation-footer">
-                                        <button :disabled="attributeDisabled" @click.prevent="addVariationProduct">{{ __( 'Add Product', 'wepos' ) }}</button>
-                                    </div>
+                                            </template>
+                                        </div>
+                                        <div class="variation-footer">
+                                            <button :disabled="attributeDisabled" @click.prevent="addVariationProduct">{{ __( 'Add Product', 'wepos' ) }}</button>
+                                        </div>
+                                    </template>
+                                </v-popover>
+                            </template>
+                        </div>
+                        <div class="no-product-found" v-if="getFilteredProduct.length <= 0">
+                            <img :src="wepos.assets_url+ '/images/no-product.png'" alt="" width="120px">
+                            <p>{{ __( 'No Product Found', 'wepos' ) }}</p>
+                        </div>
+                    </template>
+                    <div class="product-loading" v-if="productLoading">
+                        <div class="spinner spinner-loading"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="content-cart">
+                <div class="top-panel">
+                    <customer-search @onCustomerSelected="selectCustomer"></customer-search>
+                    <div class="action">
+                        <div class="more-options">
+                            <v-popover offset="5" popover-base-class="wepos-dropdown-menu tooltip popover" placement="bottom-end" :open="showQucikMenu">
+                                <button class="wepos-button" @click.prevent="openQucikMenu()"><span class="more-icon flaticon-more"></span></button>
+                                <template slot="popover">
+                                    <ul>
+                                        <component
+                                            v-for="(quickLinkListStartComponent, key) in quickLinkListStart"
+                                            :key="key-`1`"
+                                            :is="quickLinkListStartComponent"
+                                        />
+                                        <li><a href="#" @click.prevent="emptyCart"><span class="flaticon-empty-cart quick-menu-icon"></span>{{ __( 'Empty Cart', 'wepos' ) }}</a></li>
+                                        <li><a href="#" @click.prevent="openHelp"><span class="flaticon-information quick-menu-icon"></span>{{ __( 'Help', 'wepos' ) }}</a></li>
+                                        <li class="divider"></li>
+                                        <component
+                                            v-for="(component, index) in quickLinkList"
+                                            :key="index"
+                                            :is="component"
+                                        />
+                                        <li><a href="#" @click.prevent="logout"><span class="flaticon-logout quick-menu-icon"></span>{{ __( 'Logout', 'wepos' ) }}</a></li>
+                                    </ul>
                                 </template>
                             </v-popover>
-                        </template>
-                    </div>
-                    <div class="no-product-found" v-if="getFilteredProduct.length <= 0">
-                        <img :src="wepos.assets_url+ '/images/no-product.png'" alt="" width="120px">
-                        <p>{{ __( 'No Product Found', 'wepos' ) }}</p>
-                    </div>
-                </template>
-                <div class="product-loading" v-if="productLoading">
-                    <div class="spinner spinner-loading"></div>
-                </div>
-            </div>
-        </div>
-        <div class="content-cart">
-            <div class="top-panel">
-                <customer-search @onCustomerSelected="selectCustomer"></customer-search>
-                <div class="action">
-                    <div class="more-options">
-                        <v-popover offset="5" popover-base-class="wepos-dropdown-menu tooltip popover" placement="bottom-end" :open="showQucikMenu">
-                            <button class="wepos-button" @click.prevent="openQucikMenu()"><span class="more-icon flaticon-more"></span></button>
-                            <template slot="popover">
-                                <ul>
-                                    <component
-                                        v-for="(quickLinkListStartComponent, key) in quickLinkListStart"
-                                        :key="key-`1`"
-                                        :is="quickLinkListStartComponent"
-                                    />
-                                    <li><a href="#" @click.prevent="emptyCart"><span class="flaticon-empty-cart quick-menu-icon"></span>{{ __( 'Empty Cart', 'wepos' ) }}</a></li>
-                                    <li><a href="#" @click.prevent="openHelp"><span class="flaticon-information quick-menu-icon"></span>{{ __( 'Help', 'wepos' ) }}</a></li>
-                                    <li class="divider"></li>
-                                    <component
-                                        v-for="(component, index) in quickLinkList"
-                                        :key="index"
-                                        :is="component"
-                                    />
-                                    <li><a href="#" @click.prevent="logout"><span class="flaticon-logout quick-menu-icon"></span>{{ __( 'Logout', 'wepos' ) }}</a></li>
-                                </ul>
-                            </template>
-                        </v-popover>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <component
-                v-for="(beforCartPanel, key ) in beforCartPanels"
-                :key="key"
-                :is="beforCartPanel"
-            />
-            <div class="cart-panel" v-if="settings.wepos_general">
-                <div class="cart-content">
-                    <table class="cart-table">
-                        <thead>
-                            <tr>
-                                <th width="65%">{{ __( 'Product', 'wepos' ) }}</th>
-                                <th width="15%">{{ __( 'Qty', 'wepos' ) }}</th>
-                                <th width="30%">{{ __( 'Price', 'wepos' ) }}</th>
-                                <th></th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template v-if="cartdata.line_items.length > 0">
-                                <template v-for="(item,key) in cartdata.line_items">
-                                    <tr>
-                                        <td class="name" @click="toggleEditQuantity( item, key )">
-                                            {{ item.name }}
-                                            <div class="attribute" v-if="item.attribute.length > 0 && item.type === 'variable'">
-                                                <ul>
-                                                    <li v-for="attribute_item in item.attribute"><span class="attr_name">{{ attribute_item.name }}</span>: <span class="attr_value">{{ attribute_item.option }}</span></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                        <td class="qty" @click="toggleEditQuantity( item, key )">{{ item.quantity }}</td>
-                                        <td class="price" @click="toggleEditQuantity( item, key )">
-                                            <template v-if="item.on_sale">
-                                                <span class="sale-price">{{ formatPrice( item.quantity*item.sale_price ) }}</span>
-                                                <span class="regular-price">{{ formatPrice( item.quantity*item.regular_price ) }}</span>
-                                            </template>
-                                            <template v-else>
-                                                <span class="sale-price">{{ formatPrice( item.quantity*item.regular_price ) }}</span>
-                                            </template>
-                                        </td>
-                                        <td class="action">
-                                            <span class="flaticon-right-arrow" :class="{ open: item.editQuantity }" @click.prevent="toggleEditQuantity( item, key )"></span>
-                                        </td>
-                                        <td class="remove">
-                                            <span class="flaticon-cancel-music" @click.prevent="removeItem(key)"></span>
-                                        </td>
-                                    </tr>
-                                    <tr v-if="item.editQuantity" class="update-quantity-wrap">
-                                        <td colspan="5">
-                                            <span class="qty">{{ __( 'Quantity', 'wepos' ) }}</span>
-                                            <span class="qty-number"><input type="number" min="1" step="1" v-model="item.quantity"></span>
-                                            <span class="qty-action">
-                                                <a href="#" class="add" @click.prevent="addQuantity( item, key )">&#43;</a>
-                                                <a href="#" class="minus" @click.prevent="removeQuantity( item, key )">&#45;</a>
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </template>
-                            <template v-else>
-                                <tr class="no-item">
-                                    <td colspan="5">
-                                        <img :src="wepos.assets_url+ '/images/empty-cart.png'" alt="" width="120px">
-                                        <p>{{ __( 'Empty Cart', 'wepos' ) }}</p>
-                                    </td>
+                <component
+                    v-for="(beforCartPanel, key ) in beforCartPanels"
+                    :key="key"
+                    :is="beforCartPanel"
+                />
+                <div class="cart-panel" v-if="settings.wepos_general">
+                    <div class="cart-content">
+                        <table class="cart-table">
+                            <thead>
+                                <tr>
+                                    <th width="65%">{{ __( 'Product', 'wepos' ) }}</th>
+                                    <th width="15%">{{ __( 'Qty', 'wepos' ) }}</th>
+                                    <th width="30%">{{ __( 'Price', 'wepos' ) }}</th>
+                                    <th></th>
+                                    <th></th>
                                 </tr>
-                            </template>
-                         </tbody>
-                    </table>
-                </div>
-                <div class="cart-calculation">
-                    <form autocomplete="off">
-                        <table class="cart-total-table">
+                            </thead>
                             <tbody>
-                                <tr class="cart-meta-data">
-                                    <td class="label">
-                                        {{ __( 'Subtotal', 'wepos' ) }}
-                                        <span class="name" v-if="settings.woo_tax.wc_tax_display_cart == 'incl' && $store.getters['Cart/getTotalLineTax'] > 0">
-                                            {{ __( 'Including Tax', 'wepos' ) }}
-                                        </span>
-                                    </td>
-                                    <td class="price">{{ formatPrice( $store.getters['Cart/getSubtotal'] ) }}</td>
-                                    <td class="action"></td>
-                                </tr>
-
-                                <template v-if="cartdata.coupon_lines.length > 0">
-                                    <tr class="cart-meta-data" v-for="(fee,key) in cartdata.coupon_lines">
-                                        <template v-if="fee.type=='discount'">
-                                            <td class="label">{{ __( 'Discount', 'wepos' ) }} <span class="name">{{ getDiscountAmount( fee ) }}</span></td>
-                                            <td class="price">&minus;{{ formatPrice( Math.abs( fee.total ) ) }}</td>
-                                            <td class="action"><span class="flaticon-cancel-music" @click="removeCouponLine(key)"></span></td>
-                                        </template>
-                                        <template v-else>
-                                            <template v-if="cartdata.coupon_lines[key].isEdit">
-                                                <td class="label" colspan="2">
-                                                    <input type="text" class="fee-name" v-model="feeData.name" :placeholder="__( 'Fee Name', 'wepos' )" ref="fee_name">
-                                                    <input type="number" class="fee-amount" min="0" step="any" v-model="feeData.value" :placeholder="__( 'Total', 'wepos' )" ref="fee_total">
-                                                    <template v-if="settings.wepos_general.enable_fee_tax == 'yes'">
-                                                        <label for="fee-tax-status"><input type="checkbox" id="fee-tax-status" class="fee-tax-status" v-model="feeData.tax_status" :true-value="'taxable'" :false-value="'none'"> {{ __( 'Taxable', 'wepos' ) }}</label>
-                                                        <select class="fee-tax-class" v-model="feeData.tax_class" v-if="feeData.tax_status=='taxable'">
-                                                            <option v-for="feeTax in availableTax" :value="feeTax.class == 'standard' ? '' : feeTax.class">{{ unSanitizeString( feeTax.class ) }} - {{ feeTax.percentage_rate }}</option>
-                                                        </select>
-                                                    </template>
-                                                    <button :disabled="feeData.name == ''" @click.prevent="saveFee(key)">{{ __( 'Apply', 'wepos' ) }}</button>
-                                                    <button class="cancel" @click.prevent="cancelEditFee(key)">{{ __( 'Cancel', 'wepos' ) }}</button>
-                                                </td>
-                                                <td class="action"><span class="flaticon-cancel-music" @click="removeCouponLine(key)"></span></td>
-                                            </template>
-                                            <template v-else>
-                                                <td class="label" @dblclick.prevent="editFeeData(key)">{{ __( 'Fee', 'wepos' ) }} <span class="name">{{ fee.name }} {{ getDiscountAmount( fee ) }}</span></td>
-                                                <td class="price">{{ formatPrice( Math.abs( fee.total ) ) }}</td>
-                                                <td class="action"><span class="flaticon-cancel-music" @click="removeCouponLine(key)"></span></td>
-                                            </template>
-                                        </template>
-                                    </tr>
-                                </template>
-
-                                <template v-if="cartdata.fee_lines.length > 0">
-                                    <tr class="cart-meta-data" v-for="(fee,key) in cartdata.fee_lines">
-                                        <template v-if="fee.type=='discount'">
-                                            <td class="label">{{ __( 'Discount', 'wepos' ) }} <span class="name">{{ getDiscountAmount( fee ) }}</span></td>
-                                            <td class="price">&minus;{{ formatPrice( Math.abs( fee.total ) ) }}</td>
-                                            <td class="action"><span class="flaticon-cancel-music" @click="removeFeeLine(key)"></span></td>
-                                        </template>
-                                        <template v-else>
-                                            <template v-if="cartdata.fee_lines[key].isEdit">
-                                                <td class="label" colspan="2">
-                                                    <input type="text" class="fee-name" v-model="feeData.name" :placeholder="__( 'Fee Name', 'wepos' )" ref="fee_name">
-                                                    <input type="number" class="fee-amount" min="0" step="any" v-model="feeData.value" :placeholder="__( 'Total', 'wepos' )" ref="fee_total">
-                                                    <template v-if="settings.wepos_general.enable_fee_tax == 'yes'">
-                                                        <label for="fee-tax-status"><input type="checkbox" id="fee-tax-status" class="fee-tax-status" v-model="feeData.tax_status" :true-value="'taxable'" :false-value="'none'"> {{ __( 'Taxable', 'wepos' ) }}</label>
-                                                        <select class="fee-tax-class" v-model="feeData.tax_class" v-if="feeData.tax_status=='taxable'">
-                                                            <option v-for="feeTax in availableTax" :value="feeTax.class == 'standard' ? '' : feeTax.class">{{ unSanitizeString( feeTax.class ) }} - {{ feeTax.percentage_rate }}</option>
-                                                        </select>
-                                                    </template>
-                                                    <button :disabled="feeData.name == ''" @click.prevent="saveFee(key)">{{ __( 'Apply', 'wepos' ) }}</button>
-                                                    <button class="cancel" @click.prevent="cancelEditFee(key)">{{ __( 'Cancel', 'wepos' ) }}</button>
-                                                </td>
-                                                <td class="action"><span class="flaticon-cancel-music" @click="removeFeeLine(key)"></span></td>
-                                            </template>
-                                            <template v-else>
-                                                <td class="label" @dblclick.prevent="editFeeData(key)">{{ __( 'Fee', 'wepos' ) }} <span class="name">{{ fee.name }} {{ getDiscountAmount( fee ) }}</span></td>
-                                                <td class="price">{{ formatPrice( Math.abs( fee.total ) ) }}</td>
-                                                <td class="action"><span class="flaticon-cancel-music" @click="removeFeeLine(key)"></span></td>
-                                            </template>
-                                        </template>
-                                    </tr>
-                                </template>
-                                <tr class="tax" v-if="$store.getters['Cart/getTotalTax']">
-                                    <td class="label">{{ settings.woo_tax.wc_tax_display_cart === 'incl' ? __( 'Fee Tax', 'wepos' ) : __( 'Tax', 'wepos' ) }}</td>
-                                    <td class="price">{{ formatPrice( $store.getters['Cart/getTotalTax'] ) }}</td>
-                                    <td class="action"></td>
-                                </tr>
-                                <tr class="cart-action">
-                                    <td colspan="3">
-                                        <fee-keypad @inputfee="setDiscount" :name="__( 'Discount', 'wepos' )" short-key="discount"></fee-keypad>
-                                        <fee-keypad @inputfee="setFee" :name="__( 'Fee', 'wepos' )" short-key="fee"></fee-keypad>
-                                        <customer-note @addnote="addCustomerNote" v-if="orderdata.customer_note == ''"></customer-note>
-                                    </td>
-                                </tr>
-                                <tr class="note" v-if="orderdata.customer_note">
-                                    <td colspan="2" class="note-text">
-                                        {{ orderdata.customer_note }}
-                                    </td>
-                                    <td class="action"><span class="flaticon-cancel-music" @click.prevent="removeCustomerNote"></span></td>
-                                </tr>
-                                <tr class="pay-now" @click="initPayment()">
-                                  <td>{{ __( 'Pay Now', 'wepos' ) }}</td>
-                                  <td class="amount">{{ formatPrice( $store.getters['Cart/getTotal'] ) }}</td>
-                                  <td class="icon"><span class="flaticon-right-arrow"></span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <modal v-if="showPaymentReceipt" @close="createNewSale()" width="600px" height="400px" >
-            <template slot="body">
-                <div class="wepos-payment-receipt">
-                    <div class="sale-completed">
-                        <img :src="wepos.assets_url+ '/images/sale-completed.png'" alt="" width="120px">
-                        <h2>{{ __( 'Sale Completed', 'wepos' ) }}</h2>
-                    </div>
-
-                    <div class="print-section">
-                        <print-receipt></print-receipt>
-                        <button class="new-sale-btn" @click.prevent="createNewSale()">
-                            <span class="icon flaticon-add"></span>
-                            <span class="label">{{ __( 'New Sale', 'wepos' ) }}</span>
-                        </button>
-                    </div>
-                </div>
-            </template>
-        </modal>
-
-        <modal v-if="showHelp" @close="closeHelp()" width="700px" height="500px">
-            <template slot="body">
-                <div class="wepos-help-wrapper">
-                    <h2>{{ __( 'Shortcut Keys', 'wepos' ) }}</h2>
-                    <ul>
-                        <li>
-                            <span class="code"><code>f1</code></span>
-                            <span class="title">{{ __( 'Search Product', 'wepos' ) }}</span>
-                        </li>
-                        <li>
-                            <span class="code"><code>f2</code></span>
-                            <span class="title">{{ __( 'Scan Product', 'wepos' ) }}</span>
-                        </li>
-                        <li>
-                            <span class="code"><code>f3</code></span>
-                            <span class="title">{{ __( 'Toggle Product View', 'wepos' ) }}</span>
-                        </li>
-                        <li>
-                            <span class="code"><code>f4</code></span>
-                            <span class="title">{{ __( 'Add Fee in cart', 'wepos' ) }}</span>
-                        </li>
-                        <li>
-                            <span class="code"><code>f5</code></span>
-                            <span class="title">{{ __( 'Add Discount in cart', 'wepos' ) }}</span>
-                        </li>
-                        <li>
-                            <span class="code"><code>f6</code></span>
-                            <span class="title">{{ __( 'Add Customer note', 'wepos' ) }}</span>
-                        </li>
-                        <li>
-                            <span class="code"><code>f7</code></span>
-                            <span class="title">{{ __( 'Customer Search', 'wepos' ) }}</span>
-                        </li>
-                        <li>
-                            <span class="code"><code>shift+f7</code></span>
-                            <span class="title">{{ __( 'Add new Customer', 'wepos' ) }}</span>
-                        </li>
-                        <li>
-                            <span class="code"><code>f8</code></span>
-                            <span class="title">{{ __( 'Create New Sale', 'wepos' ) }}</span>
-                        </li>
-                        <li>
-                            <span class="code"><code>shift+f8</code></span>
-                            <span class="title">{{ __( 'Empty your cart', 'wepos' ) }}</span>
-                        </li>
-                        <li>
-                            <span class="code"><code>f9</code></span>
-                            <span class="title">{{ __( 'Go to payment receipt', 'wepos' ) }}</span>
-                        </li>
-                        <li>
-                            <span class="code"><code>f10</code></span>
-                            <span class="title">{{ __( 'Process Payment', 'wepos' ) }}</span>
-                        </li>
-                        <li>
-                            <span class="code"><code>ctrl/cmd+p</code></span>
-                            <span class="title">{{ __( 'Print Receipt', 'wepos' ) }}</span>
-                        </li>
-                        <li>
-                            <span class="code"><code>ctrl/cmd+?</code></span>
-                            <span class="title">{{ __( 'Show/Close(Toggle) Help', 'wepos' ) }}</span>
-                        </li>
-                        <li>
-                            <span class="code"><code>esc</code></span>
-                            <span class="title">{{ __( 'Close anything', 'wepos' ) }}</span>
-                        </li>
-                    </ul>
-                </div>
-            </template>
-        </modal>
-
-        <modal v-if="showModal" @open="focusCashInput()" @close="backToSale()" @enterpressed="processPayment()" width="98%" height="95vh">
-            <template slot="body">
-                <div class="wepos-checkout-wrapper">
-                    <div class="left-content">
-                        <div class="header">
-                            {{ __( 'Sale Summary', 'wepos' ) }}
-                        </div>
-                        <div class="content">
-                            <table class="sale-summary-cart">
-                                <tbody>
-                                    <tr v-for="item in cartdata.line_items">
-                                        <td class="name">
-                                            {{ item.name }}
-                                            <div class="attribute" v-if="item.attribute.length > 0 && item.type === 'variable'">
-                                                <ul>
-                                                    <li v-for="attribute_item in item.attribute"><span class="attr_name">{{ attribute_item.name }}</span>: <span class="attr_value">{{ attribute_item.option }}</span></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                        <td class="quantity">{{ item.quantity }}</td>
-                                        <td class="price">
-                                            <template v-if="item.on_sale">
-                                                <span class="sale-price">{{ formatPrice( item.quantity*item.sale_price ) }}</span>
-                                                <span class="regular-price">{{ formatPrice( item.quantity*item.regular_price ) }}</span>
-                                            </template>
-                                            <template v-else>
-                                                <span class="sale-price">{{ formatPrice( item.quantity*item.regular_price ) }}</span>
-                                            </template>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="footer">
-                            <ul>
-                                <li class="wepos-clearfix">
-                                    <span class="wepos-left">
-                                        {{ __( 'Subtotal', 'wepos' ) }}
-                                        <span class="metadata" v-if="settings.woo_tax.wc_tax_display_cart == 'incl'">
-                                            {{ __( 'Including Tax', 'wepos' ) }}
-                                        </span>
-                                    </span>
-                                    <span class="wepos-right">{{ formatPrice( $store.getters['Cart/getSubtotal'] ) }}</span>
-                                </li>
-
-                                <template v-if="cartdata.coupon_lines.length > 0">
-                                    <li class="wepos-clearfix" v-for="(fee,key) in cartdata.coupon_lines">
-                                        <template v-if="fee.type=='discount'">
-                                            <span class="wepos-left">{{ __( 'Discount', 'wepos' ) }} <span class="metadata">{{ fee.name }} {{ getDiscountAmount( fee ) }}</span></span>
-                                            <span class="wepos-right">-{{ formatPrice( Math.abs( fee.total ) ) }}</span>
-                                        </template>
-                                        <template v-else>
-                                            <span class="wepos-left">{{ __( 'Fee', 'wepos' ) }} <span class="metadata">{{ fee.name }} {{ getDiscountAmount( fee ) }}</span></span>
-                                            <span class="wepos-right">{{ formatPrice( fee.total ) }}</span>
-                                        </template>
-                                    </li>
-                                </template>
-
-                                <template v-if="cartdata.fee_lines.length > 0">
-                                    <li class="wepos-clearfix" v-for="(fee,key) in cartdata.fee_lines">
-                                        <template v-if="fee.type=='discount'">
-                                            <span class="wepos-left">{{ __( 'Discount', 'wepos' ) }} <span class="metadata">{{ fee.name }} {{ getDiscountAmount( fee ) }}</span></span>
-                                            <span class="wepos-right">-{{ formatPrice( Math.abs( fee.total ) ) }}</span>
-                                        </template>
-                                        <template v-else>
-                                            <span class="wepos-left">{{ __( 'Fee', 'wepos' ) }} <span class="metadata">{{ fee.name }} {{ getDiscountAmount( fee ) }}</span></span>
-                                            <span class="wepos-right">{{ formatPrice( fee.total ) }}</span>
-                                        </template>
-                                    </li>
-                                </template>
-                                <li class="wepos-clearfix" v-if="$store.getters['Cart/getTotalTax']">
-                                    <span class="wepos-left">{{ __( 'Tax', 'wepos' ) }}</span>
-                                    <span class="wepos-right">{{ formatPrice( $store.getters['Cart/getTotalTax'] ) }}</span>
-                                </li>
-                                <li class="wepos-clearfix">
-                                    <span class="wepos-left">{{ __( 'Order Total', 'wepos' ) }}</span>
-                                    <span class="wepos-right">{{ formatPrice( $store.getters['Cart/getTotal'] ) }}</span>
-                                </li>
-                                <li class="wepos-clearfix">
-                                    <span class="wepos-left">{{ __( 'Pay', 'wepos' ) }}</span>
-                                    <span class="wepos-right">{{ formatPrice( $store.getters['Cart/getTotal'] ) }}</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="right-content">
-                        <div class="header wepos-clearfix">
-                            <h2 class="wepos-left">{{ __( 'Pay', 'wepos' ) }}</h2>
-                            <span class="pay-amount wepos-right">{{ formatPrice( $store.getters['Cart/getTotal'] ) }}</span>
-                        </div>
-
-                        <div class="content">
-                            <div class="payment-gateway">
-                                <template v-if="availableGateways.length > 0">
-                                    <label v-for="gateway in availableGateways">
-                                        <input type="radio" name="gateway" checked :value="gateway.id" v-model="selectedGateway">  <!-- v-model="orderdata.payment_method" -->
-                                        <span class="gateway" :class="`gateway-${gateway.id}`">
-                                            {{ gateway.title }}
-                                        </span>
-                                    </label>
-                                    <template v-if="emptyGatewayDiv > 0">
-                                        <label v-for="n in emptyGatewayDiv" :key="n">
-                                            <span class="grid-placeholder"></span>
-                                        </label>
+                                <template v-if="cartdata.line_items.length > 0">
+                                    <template v-for="(item,key) in cartdata.line_items">
+                                        <tr>
+                                            <td class="name" @click="toggleEditQuantity( item, key )">
+                                                {{ item.name }}
+                                                <div class="attribute" v-if="item.attribute.length > 0 && item.type === 'variable'">
+                                                    <ul>
+                                                        <li v-for="attribute_item in item.attribute"><span class="attr_name">{{ attribute_item.name }}</span>: <span class="attr_value">{{ attribute_item.option }}</span></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                            <td class="qty" @click="toggleEditQuantity( item, key )">{{ item.quantity }}</td>
+                                            <td class="price" @click="toggleEditQuantity( item, key )">
+                                                <template v-if="item.on_sale">
+                                                    <span class="sale-price">{{ formatPrice( item.quantity*item.sale_price ) }}</span>
+                                                    <span class="regular-price">{{ formatPrice( item.quantity*item.regular_price ) }}</span>
+                                                </template>
+                                                <template v-else>
+                                                    <span class="sale-price">{{ formatPrice( item.quantity*item.regular_price ) }}</span>
+                                                </template>
+                                            </td>
+                                            <td class="action">
+                                                <span class="flaticon-right-arrow" :class="{ open: item.editQuantity }" @click.prevent="toggleEditQuantity( item, key )"></span>
+                                            </td>
+                                            <td class="remove">
+                                                <span class="flaticon-cancel-music" @click.prevent="removeItem(key)"></span>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="item.editQuantity" class="update-quantity-wrap">
+                                            <td colspan="5">
+                                                <span class="qty">{{ __( 'Quantity', 'wepos' ) }}</span>
+                                                <span class="qty-number"><input type="number" min="1" step="1" v-model="item.quantity"></span>
+                                                <span class="qty-action">
+                                                    <a href="#" class="add" @click.prevent="addQuantity( item, key )">&#43;</a>
+                                                    <a href="#" class="minus" @click.prevent="removeQuantity( item, key )">&#45;</a>
+                                                </span>
+                                            </td>
+                                        </tr>
                                     </template>
                                 </template>
                                 <template v-else>
-                                    <p>{{ __( 'No gateway found', 'wepos' ) }}</p>
+                                    <tr class="no-item">
+                                        <td colspan="5">
+                                            <img :src="wepos.assets_url+ '/images/empty-cart.png'" alt="" width="120px">
+                                            <p>{{ __( 'Empty Cart', 'wepos' ) }}</p>
+                                        </td>
+                                    </tr>
                                 </template>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="cart-calculation">
+                        <form autocomplete="off">
+                            <table class="cart-total-table">
+                                <tbody>
+                                    <tr class="cart-meta-data">
+                                        <td class="label">
+                                            {{ __( 'Subtotal', 'wepos' ) }}
+                                            <span class="name" v-if="settings.woo_tax.wc_tax_display_cart == 'incl' && $store.getters['Cart/getTotalLineTax'] > 0">
+                                                {{ __( 'Includes Tax', 'wepos' ) }} {{ formatPrice( $store.getters['Cart/getTotalLineTax'] ) }}
+                                            </span>
+                                        </td>
+                                        <td class="price">{{ formatPrice( $store.getters['Cart/getSubtotal'] ) }}</td>
+                                        <td class="action"></td>
+                                    </tr>
+                                    <template v-if="cartdata.fee_lines.length > 0">
+                                        <tr class="cart-meta-data" v-for="(fee,key) in cartdata.fee_lines">
+                                            <template v-if="fee.type=='discount'">
+                                                <td class="label">{{ __( 'Discount', 'wepos' ) }} <span class="name">{{ getDiscountAmount( fee ) }}</span></td>
+                                                <td class="price">&minus;{{ formatPrice( Math.abs( fee.total ) ) }}</td>
+                                                <td class="action"><span class="flaticon-cancel-music" @click="removeFeeLine(key)"></span></td>
+                                            </template>
+                                            <template v-else>
+                                                <template v-if="cartdata.fee_lines[key].isEdit">
+                                                    <td class="label" colspan="2">
+                                                        <input type="text" class="fee-name" v-model="feeData.name" :placeholder="__( 'Fee Name', 'wepos' )" ref="fee_name">
+                                                        <input type="number" class="fee-amount" min="0" step="any" v-model="feeData.value" :placeholder="__( 'Total', 'wepos' )" ref="fee_total">
+                                                        <template v-if="settings.wepos_general.enable_fee_tax == 'yes'">
+                                                            <label for="fee-tax-status"><input type="checkbox" id="fee-tax-status" class="fee-tax-status" v-model="feeData.tax_status" :true-value="'taxable'" :false-value="'none'"> {{ __( 'Taxable', 'wepos' ) }}</label>
+                                                            <select class="fee-tax-class" v-model="feeData.tax_class" v-if="feeData.tax_status=='taxable'">
+                                                                <option v-for="feeTax in availableTax" :value="feeTax.class == 'standard' ? '' : feeTax.class">{{ unSanitizeString( feeTax.class ) }} - {{ feeTax.percentage_rate }}</option>
+                                                            </select>
+                                                        </template>
+                                                        <button :disabled="feeData.name == ''" @click.prevent="saveFee(key)">{{ __( 'Apply', 'wepos' ) }}</button>
+                                                        <button class="cancel" @click.prevent="cancelEditFee(key)">{{ __( 'Cancel', 'wepos' ) }}</button>
+                                                    </td>
+                                                    <td class="action"><span class="flaticon-cancel-music" @click="removeFeeLine(key)"></span></td>
+                                                </template>
+                                                <template v-else>
+                                                    <td class="label" @dblclick.prevent="editFeeData(key)">{{ __( 'Fee', 'wepos' ) }} <span class="name">{{ fee.name }} {{ getDiscountAmount( fee ) }}</span></td>
+                                                    <td class="price">{{ formatPrice( Math.abs( fee.total ) ) }}</td>
+                                                    <td class="action"><span class="flaticon-cancel-music" @click="removeFeeLine(key)"></span></td>
+                                                </template>
+                                            </template>
+                                        </tr>
+                                    </template>
+                                    <tr class="tax" v-if="$store.getters['Cart/getTotalTax']">
+                                        <td class="label">{{ __( 'Tax', 'wepos' ) }}</td>
+                                        <td class="price">{{ formatPrice( $store.getters['Cart/getTotalTax'] ) }}</td>
+                                        <td class="action"></td>
+                                    </tr>
+                                    <tr class="cart-action">
+                                        <td colspan="3">
+                                            <fee-keypad @inputfee="setDiscount" :name="__( 'Discount', 'wepos' )" short-key="discount"></fee-keypad>
+                                            <fee-keypad @inputfee="setFee" :name="__( 'Fee', 'wepos' )" short-key="fee"></fee-keypad>
+                                            <customer-note @addnote="addCustomerNote" v-if="orderdata.customer_note == ''"></customer-note>
+                                        </td>
+                                    </tr>
+                                    <tr class="note" v-if="orderdata.customer_note">
+                                        <td colspan="2" class="note-text">
+                                            {{ orderdata.customer_note }}
+                                        </td>
+                                        <td class="action"><span class="flaticon-cancel-music" @click.prevent="removeCustomerNote"></span></td>
+                                    </tr>
+                                    <tr class="pay-now" @click="initPayment()">
+                                    <td>{{ __( 'Pay Now', 'wepos' ) }}</td>
+                                    <td class="amount">{{ formatPrice( $store.getters['Cart/getTotal'] ) }}</td>
+                                    <td class="icon"><span class="flaticon-right-arrow"></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <modal v-if="showPaymentReceipt" @close="createNewSale()" width="600px" height="400px" >
+                <template slot="body">
+                    <div class="wepos-payment-receipt">
+                        <div class="sale-completed">
+                            <img :src="wepos.assets_url+ '/images/sale-completed.png'" alt="" width="120px">
+                            <h2>{{ __( 'Sale Completed', 'wepos' ) }}</h2>
+                        </div>
+
+                        <div class="print-section">
+                            <component
+                                v-for="(menu, key ) in printeReceipt"
+                                :printdata="printdata" 
+                                :key="key"
+                                :is="menu"
+                            />
+                            <print-receipt></print-receipt>
+                            <button class="new-sale-btn" @click.prevent="createNewSale()">
+                                <span class="icon flaticon-add"></span>
+                                <span class="label">{{ __( 'New Sale', 'wepos' ) }}</span>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </modal>
+
+            <modal v-if="showHelp" @close="closeHelp()" width="700px" height="500px">
+                <template slot="body">
+                    <div class="wepos-help-wrapper">
+                        <h2>{{ __( 'Shortcut Keys', 'wepos' ) }}</h2>
+                        <ul>
+                            <li>
+                                <span class="code"><code>f1</code></span>
+                                <span class="title">{{ __( 'Search Product', 'wepos' ) }}</span>
+                            </li>
+                            <li>
+                                <span class="code"><code>f2</code></span>
+                                <span class="title">{{ __( 'Scan Product', 'wepos' ) }}</span>
+                            </li>
+                            <li>
+                                <span class="code"><code>f3</code></span>
+                                <span class="title">{{ __( 'Toggle Product View', 'wepos' ) }}</span>
+                            </li>
+                            <li>
+                                <span class="code"><code>f4</code></span>
+                                <span class="title">{{ __( 'Add Fee in cart', 'wepos' ) }}</span>
+                            </li>
+                            <li>
+                                <span class="code"><code>f5</code></span>
+                                <span class="title">{{ __( 'Add Discount in cart', 'wepos' ) }}</span>
+                            </li>
+                            <li>
+                                <span class="code"><code>f6</code></span>
+                                <span class="title">{{ __( 'Add Customer note', 'wepos' ) }}</span>
+                            </li>
+                            <li>
+                                <span class="code"><code>f7</code></span>
+                                <span class="title">{{ __( 'Customer Search', 'wepos' ) }}</span>
+                            </li>
+                            <li>
+                                <span class="code"><code>shift+f7</code></span>
+                                <span class="title">{{ __( 'Add new Customer', 'wepos' ) }}</span>
+                            </li>
+                            <li>
+                                <span class="code"><code>f8</code></span>
+                                <span class="title">{{ __( 'Create New Sale', 'wepos' ) }}</span>
+                            </li>
+                            <li>
+                                <span class="code"><code>shift+f8</code></span>
+                                <span class="title">{{ __( 'Empty your cart', 'wepos' ) }}</span>
+                            </li>
+                            <li>
+                                <span class="code"><code>f9</code></span>
+                                <span class="title">{{ __( 'Go to payment receipt', 'wepos' ) }}</span>
+                            </li>
+                            <li>
+                                <span class="code"><code>f10</code></span>
+                                <span class="title">{{ __( 'Process Payment', 'wepos' ) }}</span>
+                            </li>
+                            <li>
+                                <span class="code"><code>ctrl/cmd+p</code></span>
+                                <span class="title">{{ __( 'Print Receipt', 'wepos' ) }}</span>
+                            </li>
+                            <li>
+                                <span class="code"><code>ctrl/cmd+?</code></span>
+                                <span class="title">{{ __( 'Show/Close(Toggle) Help', 'wepos' ) }}</span>
+                            </li>
+                            <li>
+                                <span class="code"><code>esc</code></span>
+                                <span class="title">{{ __( 'Close anything', 'wepos' ) }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </template>
+            </modal>
+
+            <modal v-if="showModal" @open="focusCashInput()" @close="backToSale()" @enterpressed="processPayment()" width="98%" height="95vh">
+                <template slot="body">
+                    <div class="wepos-checkout-wrapper">
+                        <div class="left-content">
+                            <div class="header">
+                                {{ __( 'Sale Summary', 'wepos' ) }}
                             </div>
-                            <template v-if="orderdata.payment_method=='wepos_cash'">
-                                <div class="payment-option">
-                                    <div class="payment-amount">
-                                        <div class="input-part">
-                                            <div class="input-wrap">
-                                                <p>{{ __( 'Cash', 'wepos' ) }}</p>
-                                                <div class="input-addon">
-                                                    <span class="currency">{{ wepos.currency_format_symbol }}</span>
-                                                    <input id="input-cash-amount" type="text" v-model="cashAmount" ref="cashamount">
+                            <div class="content">
+                                <table class="sale-summary-cart">
+                                    <tbody>
+                                        <tr v-for="item in cartdata.line_items">
+                                            <td class="name">
+                                                {{ item.name }}
+                                                <div class="attribute" v-if="item.attribute.length > 0 && item.type === 'variable'">
+                                                    <ul>
+                                                        <li v-for="attribute_item in item.attribute"><span class="attr_name">{{ attribute_item.name }}</span>: <span class="attr_value">{{ attribute_item.option }}</span></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                            <td class="quantity">{{ item.quantity }}</td>
+                                            <td class="price">
+                                                <template v-if="item.on_sale">
+                                                    <span class="sale-price">{{ formatPrice( item.quantity*item.sale_price ) }}</span>
+                                                    <span class="regular-price">{{ formatPrice( item.quantity*item.regular_price ) }}</span>
+                                                </template>
+                                                <template v-else>
+                                                    <span class="sale-price">{{ formatPrice( item.quantity*item.regular_price ) }}</span>
+                                                </template>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="footer">
+                                <ul>
+                                    <li class="wepos-clearfix">
+                                        <span class="wepos-left">
+                                            {{ __( 'Subtotal', 'wepos' ) }}
+                                            <span class="metadata" v-if="settings.woo_tax.wc_tax_display_cart == 'incl'">
+                                                {{ __( 'Includes Tax', 'wepos' ) }} {{ formatPrice( $store.getters['Cart/getTotalLineTax'] ) }}
+                                            </span>
+                                        </span>
+                                        <span class="wepos-right">{{ formatPrice( $store.getters['Cart/getSubtotal'] ) }}</span>
+                                    </li>
+                                    <template v-if="cartdata.fee_lines.length > 0">
+                                        <li class="wepos-clearfix" v-for="(fee,key) in cartdata.fee_lines">
+                                            <template v-if="fee.type=='discount'">
+                                                <span class="wepos-left">{{ __( 'Discount', 'wepos' ) }} <span class="metadata">{{ fee.name }} {{ getDiscountAmount( fee ) }}</span></span>
+                                                <span class="wepos-right">-{{ formatPrice( Math.abs( fee.total ) ) }}</span>
+                                            </template>
+                                            <template v-else>
+                                                <span class="wepos-left">{{ __( 'Fee', 'wepos' ) }} <span class="metadata">{{ fee.name }} {{ getDiscountAmount( fee ) }}</span></span>
+                                                <span class="wepos-right">{{ formatPrice( fee.total ) }}</span>
+                                            </template>
+                                        </li>
+                                    </template>
+                                    <li class="wepos-clearfix" v-if="$store.getters['Cart/getTotalTax']">
+                                        <span class="wepos-left">{{ __( 'Tax', 'wepos' ) }}</span>
+                                        <span class="wepos-right">{{ formatPrice( $store.getters['Cart/getTotalTax'] ) }}</span>
+                                    </li>
+                                    <li class="wepos-clearfix">
+                                        <span class="wepos-left">{{ __( 'Order Total', 'wepos' ) }}</span>
+                                        <span class="wepos-right">{{ formatPrice( $store.getters['Cart/getTotal'] ) }}</span>
+                                    </li>
+                                    <li class="wepos-clearfix">
+                                        <span class="wepos-left">{{ __( 'Pay', 'wepos' ) }}</span>
+                                        <span class="wepos-right">{{ formatPrice( $store.getters['Cart/getTotal'] ) }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="right-content">
+                            <div class="header wepos-clearfix">
+                                <h2 class="wepos-left">{{ __( 'Pay', 'wepos' ) }}</h2>
+                                <span class="pay-amount wepos-right">{{ formatPrice( $store.getters['Cart/getTotal'] ) }}</span>
+                            </div>
+
+                            <div class="content">
+                                <div class="payment-gateway">
+                                    <template v-if="availableGateways.length > 0">
+                                        <label v-for="gateway in availableGateways">
+                                            <input type="radio" name="gateway" checked :value="gateway.id" v-model="selectedGateway">  <!-- v-model="orderdata.payment_method" -->
+                                            <span class="gateway" :class="`gateway-${gateway.id}`">
+                                                {{ gateway.title }}
+                                            </span>
+                                        </label>
+                                        <template v-if="emptyGatewayDiv > 0">
+                                            <label v-for="n in emptyGatewayDiv" :key="n">
+                                                <span class="grid-placeholder"></span>
+                                            </label>
+                                        </template>
+                                    </template>
+                                    <template v-else>
+                                        <p>{{ __( 'No gateway found', 'wepos' ) }}</p>
+                                    </template>
+                                </div>
+                                <template v-if="orderdata.payment_method=='wepos_cash'">
+                                    <div class="payment-option">
+                                        <div class="payment-amount">
+                                            <div class="input-part">
+                                                <div class="input-wrap">
+                                                    <p>{{ __( 'Cash', 'wepos' ) }}</p>
+                                                    <div class="input-addon">
+                                                        <span class="currency">{{ wepos.currency_format_symbol }}</span>
+                                                        <input id="input-cash-amount" type="text" v-model="cashAmount" ref="cashamount">
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <div class="change-money">
+                                                <p>{{ __( 'Change money', 'wepos' ) }}: {{ formatPrice( changeAmount ) }}</p>
+                                            </div>
                                         </div>
-                                        <div class="change-money">
-                                            <p>{{ __( 'Change money', 'wepos' ) }}: {{ formatPrice( changeAmount ) }}</p>
+                                        <div class="virtual-keyboard">
+                                            <numpad v-model="cashAmount" v-on:back-to-sale="backToSale()" v-on:pos-pay="processPayment" :layouts="layout()" />
                                         </div>
                                     </div>
-                                </div>
-                            </template>
-
+                                </template>
                             <component
                                 v-for="(availableGatewayComponent, key ) in availableGatewayContent"
                                 :key="key"
                                 :is="availableGatewayComponent"
                                 :availablegateways="availableGateways"
+                                @card-print-ready="handleCardReceiptPrint"
                             />
-                        </div>
-
-                        <div class="footer wepos-clearfix">
-                            <a href="#" class="back-btn wepos-left" @click.prevent="backToSale()">{{ __( 'Back to Sale', 'wepos' ) }}</a>
-                            <button class="process-checkout-btn wepos-right" @click.prevent="processPayment" :disabled="! $store.getters['Order/getCanProcessPayment']">{{ __( 'Process Payment', 'wepos' ) }}</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </template>
-        </modal>
+                </template>
+            </modal>
 
-        <overlay :show="showOverlay"></overlay>
+            <overlay :show="showOverlay"></overlay>
 
-        <print-receipt-html v-show="createprintreceipt" v-if="showReceiptHtml" :printdata="printdata" :settings="settings"></print-receipt-html>
-
-        <component
-            v-for="(afterMainContent, key ) in afterMainContents"
-            :key="key"
-            :is="afterMainContent"
-            :orderdata="orderdata"
-            :printdata="printdata"
-        />
+            <print-receipt-html v-show="createprintreceipt" v-if="showReceiptHtml" :printdata="printdata" :settings="settings"></print-receipt-html>
+            <component
+                v-for="(afterMainContent, key ) in afterMainContents"
+                :key="key"
+                :is="afterMainContent"
+                :orderdata="orderdata"
+                :printdata="printdata"
+            />
     </div>
 </template>
 
@@ -607,6 +563,7 @@ import MugenScroll from 'vue-mugen-scroll';
 import PrintReceipt from './PrintReceipt.vue';
 import PrintReceiptHtml from './PrintReceiptHtml.vue';
 import CustomerNote from './CustomerNote.vue';
+import numpad from './Numpad.vue';
 
 let Modal = wepos_get_lib( 'Modal' );
 
@@ -623,7 +580,8 @@ export default {
         FeeKeypad,
         PrintReceipt,
         PrintReceiptHtml,
-        CustomerNote
+        CustomerNote,
+        numpad
     },
 
     data () {
@@ -666,7 +624,7 @@ export default {
             availableGatewayContent: wepos.hooks.applyFilters( 'wepos_avaialable_gateway_content', [] ),
             afterMainContents: wepos.hooks.applyFilters( 'wepos_after_main_content', [] ),
             beforCartPanels: wepos.hooks.applyFilters( 'wepos_before_cart_panel', [] ),
-            couponData: {},
+            printeReceipt: wepos.hooks.applyFilters( 'wepos_before_print_recipt', [] ),
         }
     },
     computed: {
@@ -766,6 +724,23 @@ export default {
     },
 
     methods: {
+        handleCardReceiptPrint(response) {
+            this.printdata = wepos.hooks.applyFilters( 'wepos_after_payment_print_data', {
+                line_items: this.cartdata.line_items,
+                fee_lines: this.cartdata.fee_lines,
+                subtotal: this.$store.getters['Cart/getSubtotal'],
+                taxtotal: this.$store.getters['Cart/getTotalTax'],
+                ordertotal: this.$store.getters['Cart/getTotal'],
+                gateway: {
+                    id: response.payment_method,
+                    title: response.payment_method_title
+                },
+                order_id: response.id,
+                order_date: response.date_created,
+                cashamount: this.cashAmount.toString(),
+                changeamount: this.changeAmount.toString()
+            }, this.orderdata, response );
+        },
         openQucikMenu() {
             this.showQucikMenu = true;
         },
@@ -825,8 +800,6 @@ export default {
                     && canProcess;
             }
 
-            console.log( canProcess );
-
             this.$store.dispatch( 'Order/setCanProcessPaymentAction', canProcess );
         },
         processPayment(e) {
@@ -840,7 +813,6 @@ export default {
                     shipping: this.orderdata.shipping,
                     line_items: this.cartdata.line_items,
                     fee_lines: this.cartdata.fee_lines,
-                    coupon_lines: this.cartdata.coupon_lines,
                     customer_id: this.orderdata.customer_id,
                     customer_note: this.orderdata.customer_note,
                     payment_method: this.orderdata.payment_method,
@@ -866,19 +838,6 @@ export default {
 
             wepos.api.post( wepos.rest.root + wepos.rest.wcversion + '/orders', orderdata )
             .done( response => {
-                const orderResult = response;
-                const totalTaxes  = {};
-
-                // Looping through line items and get total tax for each items.
-                orderResult.line_items.forEach( item => {
-                    totalTaxes[item.product_id] = item.total_tax
-                } );
-
-                // Preserve total tax amount for each of the line items to the cart.
-                this.cartdata.line_items.forEach( item => {
-                    item.total_tax = totalTaxes[ item.product_id ];
-                } );
-
                 wepos.api.post( wepos.rest.root + wepos.rest.posversion + '/payment/process', response )
                 .done( data => {
                     if ( data.result == 'success' ) {
@@ -892,7 +851,6 @@ export default {
                         this.printdata = wepos.hooks.applyFilters( 'wepos_after_payment_print_data', {
                             line_items: this.cartdata.line_items,
                             fee_lines: this.cartdata.fee_lines,
-                            coupon_lines: this.cartdata.coupon_lines,
                             subtotal: this.$store.getters['Cart/getSubtotal'],
                             taxtotal: this.$store.getters['Cart/getTotalTax'],
                             ordertotal: this.$store.getters['Cart/getTotal'],
@@ -900,11 +858,11 @@ export default {
                                 id: response.payment_method,
                                 title: response.payment_method_title
                             },
-                            order_id: response.number,
+                            order_id: response.id,
                             order_date: response.date_created,
                             cashamount: this.cashAmount.toString(),
                             changeamount: this.changeAmount.toString()
-                        }, orderdata );
+                        }, orderdata, response );
                       $contentWrap.unblock();
                     } else {
                         $contentWrap.unblock();
@@ -944,49 +902,7 @@ export default {
             return ( product.images.length > 0 ) ? product.images[0].name : product.name;
         },
         setDiscount( value, type ) {
-            this.createCoupon( value, type, this.dispatchCoupon );
-        },
-        createCoupon( amount, discount_type, callback ) {
-            let self = this;
-            let id   = Date.now();
-            let code = discount_type + id + amount;
-
-            self.couponData = {};
-
-            const discountdata = {
-                code: code,
-                amount: amount,
-                usage_limit: 1,
-                meta_data : [
-                    {
-                        key: 'wepos_cart_discount',
-                        value: 'yes',
-                    },
-                ],
-            }
-
-            if ( 'percent' ===  discount_type ) {
-                discountdata.discount_type = discount_type;
-            }
-
-            wepos.api.post( wepos.rest.root + wepos.rest.posversion + '/coupons', discountdata )
-                .done( data => {
-                    self.couponData = data;
-
-                    callback( data, discount_type );
-                } ).fail( data => {
-                    alert( data.responseJSON.message );
-            } );
-        },
-        dispatchCoupon( couponData, type ) {
-            this.$store.dispatch(
-                'Cart/addDiscountAction',
-                {
-                    title: this.__( 'Discount', 'wepos' ),
-                    value: couponData,
-                    type
-                }
-            );
+            this.$store.dispatch( 'Cart/addDiscountAction', { title: this.__( 'Discount', 'wepos' ), value: value, type: type } );
         },
         saveFee( key ) {
             this.$store.dispatch( 'Cart/saveFeeValueAction', { key: key, feeData: this.feeData } );
@@ -1005,9 +921,6 @@ export default {
         },
         setFee( value, type ) {
             this.$store.dispatch( 'Cart/addFeeAction', { title: this.__( 'Fee', 'wepos' ), value: value, type: type } );
-        },
-        removeCouponLine( key ) {
-            this.$store.dispatch( 'Cart/removeCouponLineItemsAction', key );
         },
         removeFeeLine( key ) {
             this.$store.dispatch( 'Cart/removeFeeLineItemsAction', key );
@@ -1243,6 +1156,9 @@ export default {
             let inputCashAmount = document.querySelector('#input-cash-amount');
             inputCashAmount.focus();
         },
+        layout() {
+            return '123{<span>Clear</span>:clear}|456{<span class="keypord-icon flaticon-left-arrow-key"></span>:backspace}|789{<span>Pay</span>:pay}|0'+wepos.currency_format_decimal_sep+'{<span>00</span>:doubleZero}{<span>Cancel</span>:cancel}';
+        },
     },
 
     async created() {
@@ -1251,7 +1167,6 @@ export default {
         this.fetchProducts();
         this.fetchGateway();
         this.fetchCategories();
-        // this.fetchTaxSettings();
 
         if ( typeof(localStorage) != 'undefined' ) {
             try {
@@ -1273,7 +1188,7 @@ export default {
                 localStorage.setItem( 'orderdata', JSON.stringify( this.$store.state.Order.orderdata ) );
             }
         }, false)
-    }
+    },
 };
 </script>
 
@@ -1282,6 +1197,55 @@ export default {
 #wepos-main {
     padding: 20px;
     display: flex;
+
+    .payment-amount {
+        height: 100%;
+
+        .change-money {
+            background: #fbfcfe;
+            border-top: none;
+            padding-bottom: 20px;
+
+            p {
+                margin: unset;
+            }
+        }
+    }
+
+    .virtual-keyboard {
+        background: #fbfcfe;
+        height: 100%;
+        padding: 20px 30px 20px 30px;
+
+        aside {
+            width: auto;
+
+            div.vue-keyboard-row {
+                border: none !important;
+            }
+
+            div.vue-keyboard-row button.vue-keyboard-key:last-child {
+                width: 40%;
+            }
+
+            div.vue-keyboard-row:nth-child(3) button.vue-keyboard-key:last-child {
+                background: #4da2b4;
+                color: white;
+                border-color: #4da2b4;
+            }
+
+            div.vue-keyboard-row:last-child button.vue-keyboard-key:last-child {
+                background: #ececec;
+            }
+
+            div button.vue-keyboard-key {
+                background: white;
+                color: #797774;
+                border: 2px solid #ececec;
+                width: 20%;
+            }
+        }
+    }
 
     .content-product {
         flex: 2;
@@ -2394,7 +2358,6 @@ export default {
                 }
             }
         }
-
     }
 }
 

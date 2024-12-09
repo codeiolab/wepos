@@ -228,6 +228,7 @@ class Assets {
             'currency_format_decimal_sep'  => esc_attr( wc_get_price_decimal_separator() ),
             'currency_format_thousand_sep' => esc_attr( wc_get_price_thousand_separator() ),
             'currency_format'              => esc_attr( str_replace( array( '%1$s', '%2$s' ), array( '%s', '%v' ), get_woocommerce_price_format() ) ), // For accounting JS
+            'currency_text'                => esc_attr( get_woocommerce_currency() ),
             'rounding_precision'           => wc_get_rounding_precision(),
             'admin_url'                    => get_admin_url(),
             'assets_url'                   => WEPOS_ASSETS,

@@ -34,9 +34,6 @@ export default {
         this.handlePrintReceiptSubmit();
     },
 
-    destroyed() {
-        document.removeEventListener( "keypress", this.handlePrintingPopup );
-    }
 };
 
 </script>
