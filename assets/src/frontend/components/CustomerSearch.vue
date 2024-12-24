@@ -324,7 +324,15 @@ export default {
                     this.closeNewCustomerModal();
                 }).fail( response => {
                     $contentWrap.unblock();
-                    alert( response.responseJSON.message );
+
+                    let message = response.responseJSON.message;
+                    let emailMessage = message.slice(0, -47).trim();
+
+                    message = emailMessage + ' But, this customer is added to your store.';
+                    
+                    alert( message );
+                    
+                    this.closeNewCustomerModal();
                 } );
             } else {
                 alert( this.__( 'Please enter an email address for customer', 'wepos' ) );

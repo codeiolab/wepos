@@ -11,7 +11,7 @@
   ],
   "minimum-stability": "dev",
   "require": {
-    "php": ">=7.4",
+    "php": ">=7.2",
     "appsero/client": "dev-develop",
     "ext-json": "*"
   },
@@ -19,9 +19,9 @@
     "wp-coding-standards/wpcs": "dev-master",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1"
   },
-  "autoload": {
+  "autoload" : {
     "psr-4": {
-      "WeDevs\\WePOS\\": "includes/"
+        "WeDevs\\WePOS\\": "includes/"
     }
   },
   "scripts": {
@@ -34,7 +34,7 @@
   },
   "config": {
     "platform": {
-      "php": "7.4"
+      "php": "7.2"
     },
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true

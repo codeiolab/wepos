@@ -8,7 +8,6 @@ export default {
         cartdata :  {
             line_items: [],
             fee_lines: [],
-            coupon_lines: [],
         }
     },
     getters: {
@@ -27,14 +26,18 @@ export default {
         getTotalFee( state ) {
             var fee = 0;
             weLo_.forEach( state.cartdata.fee_lines, function( item, key ) {
-                fee += Math.abs( item.total );
+                if ( item.type == 'fee' ) {
+                    fee += Math.abs( item.total )
+                }
             });
             return fee;
         },
         getTotalDiscount( state ) {
             var discount = 0;
-            weLo_.forEach( state.cartdata.coupon_lines, function( item, key ) {
-                discount += Number( Math.abs( item.total ) );
+            weLo_.forEach( state.cartdata.fee_lines, function( item, key ) {
+                if ( item.type == 'discount' ) {
+                    discount += Number( Math.abs( item.total ) );
+                }
             });
 
             return discount;
@@ -49,13 +52,10 @@ export default {
 
             return taxLineTotal;
         },
-        getTotalTax( state, getters ) {
+        getTotalTax( state ) {
             let self = this,
                 taxLineTotal = 0,
-                taxFeeTotal = 0,
-                discountPercentage = 0,
-                couponTaxDiscount = 0;
-
+                taxFeeTotal = 0;
             weLo_.forEach( state.cartdata.line_items, function( item, key ) {
                 taxLineTotal += Math.abs( item.tax_amount * item.quantity );
             } );
@@ -76,27 +76,14 @@ export default {
                     return;
                 }
 
-                taxFeeTotal += ( Math.abs( item.total ) * Math.abs( taxClass.rate ) ) / 100;
-            } );
-
-            weLo_.forEach( state.cartdata.coupon_lines, function( item, key ) {
-                if ( item.tax_status !== 'taxable' ) {
-                    return;
+                if ( item.type === 'discount' ) {
+                    taxLineTotal += item.total / taxClass.rate;
                 }
 
-                let itemTaxClass = item.tax_class === '' ? 'standard' : item.tax_class;
-                let taxClass      = weLo_.find( state.availableTax, { 'class' : itemTaxClass.toString() } );
-
-                if ( ! taxClass ) {
-                    return;
+                if ( item.type === 'fee' ) {
+                    taxFeeTotal += ( Math.abs( item.total ) * Math.abs( taxClass.rate ) ) / 100;
                 }
-
-                discountPercentage = ( item.total / getters.getSubtotal ) * 100;
-
-                couponTaxDiscount += ( discountPercentage / 100 ) * taxLineTotal;
             } );
-
-            taxLineTotal += couponTaxDiscount;
 
             return taxLineTotal + taxFeeTotal;
         },
@@ -124,7 +111,6 @@ export default {
                 state.cartdata = {
                     line_items: [],
                     fee_lines: [],
-                    coupon_lines: [],
                 }
             } else {
                 state.cartdata = Object.assign( {}, cartdata );
@@ -187,16 +173,15 @@ export default {
         },
 
         addDiscount( state, discountData ) {
-            state.cartdata.coupon_lines.push({
+            state.cartdata.fee_lines.push({
                 name: discountData.title,
                 type: 'discount',
+                value: discountData.value.toString(),
                 isEdit: false,
-                value: discountData.value.amount,
-                discount_type: discountData.value.discount_type,
-                tax_status: 'incl' !== state.settings.woo_tax.wc_tax_display_shop ? 'taxable' : 'none',
+                discount_type: discountData.type,
+                tax_status: 'taxable',
                 tax_class: '',
-                total: 0,
-                code: discountData.value.code,
+                total: 0
             });
         },
 
@@ -207,9 +192,9 @@ export default {
                 value: feeData.value.toString(),
                 isEdit: false,
                 fee_type: feeData.type,
-                tax_status: 'yes' === state.settings.wepos_general.enable_fee_tax ? 'taxable' : 'none',
+                tax_status: 'taxable',
                 tax_class: '',
-                total: 0,
+                total: 0
             });
         },
 
@@ -226,10 +211,6 @@ export default {
             state.cartdata.fee_lines[itemKey].isEdit = false;
         },
 
-        removeCouponLineItems( state, itemKey ) {
-            state.cartdata.coupon_lines.splice( itemKey, 1 );
-        },
-
         removeFeeLineItems( state, itemKey ) {
             state.cartdata.fee_lines.splice( itemKey, 1 );
         },
@@ -238,17 +219,16 @@ export default {
             state.cartdata =  {
                 line_items: [],
                 fee_lines: [],
-                coupon_lines: [],
             };
         },
         calculateDiscount( state, payload ) {
-            if ( state.cartdata.coupon_lines.length > 0 ) {
-                weLo_.forEach( state.cartdata.coupon_lines, ( item, key ) => {
+            if ( state.cartdata.fee_lines.length > 0 ) {
+                weLo_.forEach( state.cartdata.fee_lines, ( item, key ) => {
                     if ( item.type == "discount" ) {
                         if ( item.discount_type == 'percent' ) {
-                            state.cartdata.coupon_lines[key].total = '-' + ( payload.getSubtotal*Math.abs( item.value ) )/100;
+                            state.cartdata.fee_lines[key].total = '-' + ( payload.getSubtotal*Math.abs( item.value ) )/100;
                         } else {
-                            state.cartdata.coupon_lines[key].total = '-' + Math.abs( item.value );
+                            state.cartdata.fee_lines[key].total = '-' + Math.abs( item.value );
                         }
                     }
                 } );
@@ -314,20 +294,18 @@ export default {
         addDiscountAction( context, discountData ) {
             context.commit( 'addDiscount', discountData );
             context.commit( 'calculateDiscount', context.getters );
+            context.commit( 'calculateFee', context.getters );
         },
 
         addFeeAction( context, feeData ) {
             context.commit( 'addFee', feeData );
-            context.commit( 'calculateFee', context.getters );
-        },
-
-        removeCouponLineItemsAction( context, itemKey ) {
-            context.commit( 'removeCouponLineItems', itemKey );
             context.commit( 'calculateDiscount', context.getters );
+            context.commit( 'calculateFee', context.getters );
         },
 
         removeFeeLineItemsAction( context, itemKey ) {
             context.commit( 'removeFeeLineItems', itemKey );
+            context.commit( 'calculateDiscount', context.getters );
             context.commit( 'calculateFee', context.getters );
         },
 
