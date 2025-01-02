@@ -563,6 +563,15 @@
                                             <p>{{ __( 'Change money', 'wepos' ) }}: {{ formatPrice( changeAmount ) }}</p>
                                         </div>
                                     </div>
+                                    <component
+                                        v-for="(value, key ) in booxosWePosCashNumpad"
+                                        :layouts="layout()"
+                                        v-model="cashAmount" 
+                                        @back-to-sale="backToSale()"
+                                        @pos-pay="processPayment"
+                                        :key="key"
+                                        :is="value"
+                                    />
                                 </div>
                             </template>
 
@@ -571,6 +580,7 @@
                                 :key="key"
                                 :is="availableGatewayComponent"
                                 :availablegateways="availableGateways"
+                                @card-print-ready="handleCardReceiptPrint"
                             />
                         </div>
 
@@ -667,6 +677,7 @@ export default {
             afterMainContents: wepos.hooks.applyFilters( 'wepos_after_main_content', [] ),
             beforCartPanels: wepos.hooks.applyFilters( 'wepos_before_cart_panel', [] ),
             couponData: {},
+            booxosWePosCashNumpad: wepos.hooks.applyFilters( 'wepos_cash_numpad', [] ),
         }
     },
     computed: {
@@ -766,6 +777,23 @@ export default {
     },
 
     methods: {
+        handleCardReceiptPrint(response) {
+            this.printdata = wepos.hooks.applyFilters( 'wepos_after_payment_print_data', {
+                line_items: this.cartdata.line_items,
+                fee_lines: this.cartdata.fee_lines,
+                subtotal: this.$store.getters['Cart/getSubtotal'],
+                taxtotal: this.$store.getters['Cart/getTotalTax'],
+                ordertotal: this.$store.getters['Cart/getTotal'],
+                gateway: {
+                    id: response.payment_method,
+                    title: response.payment_method_title
+                },
+                order_id: response.id,
+                order_date: response.date_created,
+                cashamount: this.cashAmount.toString(),
+                changeamount: this.changeAmount.toString()
+            }, this.orderdata, response );
+        },
         openQucikMenu() {
             this.showQucikMenu = true;
         },
@@ -904,7 +932,7 @@ export default {
                             order_date: response.date_created,
                             cashamount: this.cashAmount.toString(),
                             changeamount: this.changeAmount.toString()
-                        }, orderdata );
+                        }, orderdata, response );
                       $contentWrap.unblock();
                     } else {
                         $contentWrap.unblock();
@@ -1242,6 +1270,9 @@ export default {
         focusCashInput() {
             let inputCashAmount = document.querySelector('#input-cash-amount');
             inputCashAmount.focus();
+        },
+        layout() {
+            return '123{<span>Clear</span>:clear}|456{<span class="keypord-icon flaticon-left-arrow-key"></span>:backspace}|789{<span>Pay</span>:pay}|0'+wepos.currency_format_decimal_sep+'{<span>00</span>:doubleZero}{<span>Cancel</span>:cancel}';
         },
     },
 
