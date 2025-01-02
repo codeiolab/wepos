@@ -1300,55 +1300,6 @@ export default {
     padding: 20px;
     display: flex;
 
-    .payment-amount {
-        height: 100%;
-
-        .change-money {
-            background: #fbfcfe;
-            border-top: none;
-            padding-bottom: 20px;
-
-            p {
-                margin: unset;
-            }
-        }
-    }
-
-    .virtual-keyboard {
-        background: #fbfcfe;
-        height: 100%;
-        padding: 20px 30px 20px 30px;
-
-        aside {
-            width: auto;
-
-            div.vue-keyboard-row {
-                border: none !important;
-            }
-
-            div.vue-keyboard-row button.vue-keyboard-key:last-child {
-                width: 40%;
-            }
-
-            div.vue-keyboard-row:nth-child(3) button.vue-keyboard-key:last-child {
-                background: #4da2b4;
-                color: white;
-                border-color: #4da2b4;
-            }
-
-            div.vue-keyboard-row:last-child button.vue-keyboard-key:last-child {
-                background: #ececec;
-            }
-
-            div button.vue-keyboard-key {
-                background: white;
-                color: #797774;
-                border: 2px solid #ececec;
-                width: 20%;
-            }
-        }
-    }
-
     .content-product {
         flex: 2;
         margin-right: 20px;
