@@ -565,7 +565,6 @@
                                     </div>
                                     <component
                                         v-for="(value, key ) in afterPaymentContents"
-                                        :layouts="layout()"
                                         v-model="cashAmount" 
                                         @back-to-sale="backToSale()"
                                         @pos-pay="processPayment"
@@ -1270,9 +1269,6 @@ export default {
         focusCashInput() {
             let inputCashAmount = document.querySelector('#input-cash-amount');
             inputCashAmount.focus();
-        },
-        layout() {
-            return '123{<span>Clear</span>:clear}|456{<span class="keypord-icon flaticon-left-arrow-key"></span>:backspace}|789{<span>Pay</span>:pay}|0'+wepos.currency_format_decimal_sep+'{<span>00</span>:doubleZero}{<span>Cancel</span>:cancel}';
         },
     },
 
