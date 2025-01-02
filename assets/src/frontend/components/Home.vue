@@ -564,7 +564,7 @@
                                         </div>
                                     </div>
                                     <component
-                                        v-for="(value, key ) in booxosWePosCashNumpad"
+                                        v-for="(value, key ) in afterPaymentContents"
                                         :layouts="layout()"
                                         v-model="cashAmount" 
                                         @back-to-sale="backToSale()"
@@ -677,7 +677,7 @@ export default {
             afterMainContents: wepos.hooks.applyFilters( 'wepos_after_main_content', [] ),
             beforCartPanels: wepos.hooks.applyFilters( 'wepos_before_cart_panel', [] ),
             couponData: {},
-            booxosWePosCashNumpad: wepos.hooks.applyFilters( 'wepos_cash_numpad', [] ),
+            afterPaymentContents: wepos.hooks.applyFilters( 'wepos_after_payment_content', [] ),
         }
     },
     computed: {
